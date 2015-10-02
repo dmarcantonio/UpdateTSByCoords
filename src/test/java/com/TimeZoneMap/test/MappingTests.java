@@ -6,6 +6,7 @@ package com.TimeZoneMap.test;
 
 import com.TimeZoneMap.mapper.TimezoneMapper;
 import org.junit.Test;
+import org.javatuples.Pair;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -54,10 +55,9 @@ public class MappingTests {
 
         if (tweetDate==null) return;
 
-        double lat = -33;
-        double lng = 151;
+        Pair<Double,Double> coords = Pair.with(45.4215296, -75.69719309999999);
 
-        Date result = getLocalTime(tweetDate, lat, lng);
+        Date result = getLocalTime(tweetDate, coords);
 
 
 
@@ -66,29 +66,27 @@ public class MappingTests {
     }
 
 
-    private Date getLocalTime(Date tweetTs, double lat, double lng){
+    private Date getLocalTime(Date tweetTs, Pair<Double,Double> coords){
         int offset;
 
         long tweetMS = tweetTs.getTime();
 
         // retrieve timezone ID from tweet location
-        String zone = TimezoneMapper.latLngToTimezoneString(lat, lng);
+        String zone = TimezoneMapper.latLngToTimezoneString(coords.getValue0(),coords.getValue1());
 
         // get offset of timezone
         TimeZone tz = TimeZone.getTimeZone(zone);
         offset = tz.getOffset(new Date().getTime()); // / 1000 / 60;
 
 //        SimpleTimeZone stz = new SimpleTimeZone(offset, zone);
-
+        System.out.println(sf.format("Tweet UTC Time: " + tweetMS));
         System.out.println("Offset for " + zone + " is " + offset);
-        System.out.println(new SimpleDateFormat("HH:mm").format(offset));
 
         // let's try applying the offset to the original date
         long localTime = tweetMS + offset;
+        System.out.println("Tweet's local time: " +  sf.format(localTime));
 
-
-
-        return null;
+        return new Date(localTime);
     }
 }
 
