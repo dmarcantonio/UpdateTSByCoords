@@ -34,10 +34,10 @@ public class MappingTests {
     private static final String TWITTER="EEE MMM dd HH:mm:ss ZZZZZ yyyy";
 
 
-    public static Date getTwitterDate(String date) {
+    public static Date getTwitterDate(String date, String timeZone) {
         SimpleDateFormat sf = new SimpleDateFormat(TWITTER);
         sf.setLenient(true);
-        sf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        sf.setTimeZone(TimeZone.getTimeZone(timeZone));
         try {
             return sf.parse(date);
         } catch (ParseException e) {
@@ -52,26 +52,19 @@ public class MappingTests {
     public void testFull(){
         Date tweetDate;
         String date = "Wed Aug 27 13:08:45 +0000 2008";
+        System.out.println("GMT Timestamp from Tweet: " + date);
 
-        tweetDate = getTwitterDate(date);
+        Pair<Double,Double> coords = Pair.with(-28.019981, 153.428073);
 
-        if (tweetDate==null) return;
+        //TODO: add timeout for coordinates outside timezone.
 
-        Pair<Double,Double> coords = Pair.with(59.438442, 24.753463);
-
-        System.out.println("Result: " + getLocalTime(tweetDate, coords));
-
-
-
-
+        getLocalTime(date, coords);
 
     }
 
 
-    private String getLocalTime(Date tweetTs, Pair<Double,Double> coords){
+    private Date getLocalTime(String date, Pair<Double,Double> coords){
         int offset;
-
-        long tweetMS = tweetTs.getTime();
 
         // retrieve timezone ID from tweet location
         String zone = TimezoneMapper.latLngToTimezoneString(coords.getValue0(),coords.getValue1());
@@ -79,25 +72,14 @@ public class MappingTests {
         // get offset of timezone
         SimpleDateFormat sf = new SimpleDateFormat(TWITTER);
         sf.setTimeZone(TimeZone.getTimeZone(zone));
-        /*offset = tz.getOffset(new Date().getTime()); // / 1000 / 60;
-        System.out.println("offset ID of timezone:" + tz.getDisplayName());
-*/
-        String localTime = sf.format(tweetMS);
+
+        // get date object with updated timezone
+        Date d = getTwitterDate(date,zone);
+
+        String localTime = sf.format(d.getTime());
         System.out.println("Tweet from timezone: " + sf.getTimeZone().getDisplayName());
         System.out.println("Adjusted Date/Time: " + localTime);
 
-
-
-        return localTime;
+        return d;
     }
 }
-
-
-/*
-        final Date currentTime = new Date();
-        final SimpleDateFormat sdf =
-                    new SimpleDateFormat("EEE, MMM d, yyyy hh:mm:ss a z");
-
-            // Give it to me in GMT time.
-            sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-            System.out.println("GMT time: " + sdf.format(currentTime));*/
