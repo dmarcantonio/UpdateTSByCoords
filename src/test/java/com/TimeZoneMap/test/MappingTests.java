@@ -79,12 +79,14 @@ public class MappingTests {
         offset = tz.getOffset(new Date().getTime()); // / 1000 / 60;
 
 //        SimpleTimeZone stz = new SimpleTimeZone(offset, zone);
-        System.out.println(sf.format("Tweet UTC Time: " + tweetMS));
+        System.out.println("Tweet UTC Time: " + sf.format(tweetMS));
         System.out.println("Offset for " + zone + " is " + offset);
 
         // let's try applying the offset to the original date
         long localTime = tweetMS + offset;
         System.out.println("Tweet's local time: " +  sf.format(localTime));
+
+
 
         return new Date(localTime);
     }
